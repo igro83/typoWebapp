@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+
+<body>
+  <div id="progress">
+    <div class="progress">
+      <div class="indeterminate"></div>
+    </div>
+  </div>
+  <div class="content">
+  </div>
+  <div class="user" hidden></div>
+  <script>
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbzUBk-BXFbVzsQ1ZNzHXIDKHxyPfAzZirdMmtSksbtdCXG3B-1pMRtsS9RBApHSwNPgFQ/exec'
+    var tg = window.Telegram.WebApp;
+    const navBar = ` <nav class="nav-extended">
+    <div class="nav-wrapper">
+    </div>
+    <div class="nav-content">
+      <ul class="tabs tabs-transparent">
+        <li class="tab" onclick="load('getMyOrders')"><a href="#">Мои заказы</a></li>
+        <li class="tab" onclick="load('getAllOrders')"><a href="#">Все заказы</a></li>
+        <li class="tab" onclick="load('getMyInfo')"><a href="#">Мои данные</a></li>
+      </ul>
+    </div>
+  </nav>
+  <div class="myContent"><div>
+  `
+    const urlU = new URL(document.location)
+    const urlQ = urlU.searchParams
+    const userId = urlQ.get('user')
+    const progressElement = document.querySelector('#progress')
+    const contentElement = document.querySelector('.content')
+    let navContentElement
+    let user = {
+      id: '',
+      telegramId: '',
+      userInfo: {},
+      curPage: '',
+      lastPage: '',
+      allOrders: [],
+      myOrders: {},
+
+    }
+    user = new Proxy({}, {
+      set(target, prop, value) {
+        if (prop == 'telegramId') {
+          getApi('getUser', value).then(data => {
+            if (data) { progressElement.hidden = true }
+            contentElement.innerHTML = navBar
+            navContentElement = document.querySelector('.myContent')
+            target.userInfo = data
+          })
+
+        }
+        if (prop == 'curPage') {
+          if (target['lastPage'] != value) {
+            progressElement.hidden = false
+            navContentElement.innerHTML = ''
+            if (value == 'getMyInfo') {
+              navContentElement.innerHTML = JSON.stringify(target.userInfo.user)
+              progressElement.hidden = true
+            }
+            if (value == 'getMyOrders') {
+              getApi('getOrders', user.id).then(data => {
+                navContentElement.innerHTML = JSON.stringify(target.userInfo.myOrders)
+                progressElement.hidden = true
+              })
+
+            }
+            if (value == 'getAllOrders') {
+              getApi('getOrders', user.id).then(data => {
+                navContentElement.innerHTML = JSON.stringify(target.userInfo.allOrders)
+                progressElement.hidden = true
+              })
+
+            }
+          }
+        }
+        target[prop] = value
+      },
+    })
+    user.telegramId = userId
+
+    function getApi(command, parameter, returnData) {
+      return new Promise((res, rej) => {
+        fetch(`${webAppUrl}?com=${command}&param=${parameter}`).then(data => {
+          data.json().then((j) => {
+            res(j)
+          })
+        })
+      })
+    }
+    function load(type) {
+      user.curPage = type
+    }
+
+  </script>
+</body>
+
+</html>
