@@ -67,7 +67,7 @@
             progressElement.hidden = false
             navContentElement.innerHTML = ''
             if (value == 'getMyInfo') {
-              navContentElement.innerHTML = JSON.stringify(target.userInfo.user)
+              navContentElement.innerHTML = JSON.stringify(target.userInfo.user)+JSON.stringify(tg.WebAppUser)
               progressElement.hidden = true
             }
             if (value == 'getMyOrders') {
