@@ -18,16 +18,15 @@
   </div>
   <div class="content">
   </div>
-  <div class="user" hidden></div>
   <script>
     const webAppUrl = 'https://script.google.com/macros/s/AKfycbzUBk-BXFbVzsQ1ZNzHXIDKHxyPfAzZirdMmtSksbtdCXG3B-1pMRtsS9RBApHSwNPgFQ/exec'
     var tg = window.Telegram.WebApp;
-    tg.ready()
     const navBar = ` <nav class="nav-extended">
     <div class="nav-wrapper">
+      <a href="" class="brand-logo">Demo</a>
     </div>
     <div class="nav-content">
-      <ul class="tabs tabs-transparent">
+      <ul class="tabs ">
         <li class="tab" onclick="load('getMyOrders')"><a href="#">Мои заказы</a></li>
         <li class="tab" onclick="load('getAllOrders')"><a href="#">Все заказы</a></li>
         <li class="tab" onclick="load('getMyInfo')"><a href="#">Мои данные</a></li>
@@ -50,7 +49,6 @@
       lastPage: '',
       allOrders: [],
       myOrders: {},
-
     }
     user = new Proxy({}, {
       set(target, prop, value) {
@@ -60,6 +58,7 @@
             contentElement.innerHTML = navBar
             navContentElement = document.querySelector('.myContent')
             target.userInfo = data
+            target.id
           })
 
         }
@@ -68,12 +67,24 @@
             progressElement.hidden = false
             navContentElement.innerHTML = ''
             if (value == 'getMyInfo') {
-              navContentElement.innerHTML = JSON.stringify(target.userInfo.user)+JSON.stringify(tg.initData)
+              navContentElement.innerHTML = JSON.stringify(target.userInfo.user)
               progressElement.hidden = true
             }
             if (value == 'getMyOrders') {
               getApi('getOrders', user.id).then(data => {
                 navContentElement.innerHTML = JSON.stringify(target.userInfo.myOrders)
+                let content=''
+                  Object.keys(target.userInfo.myOrders).forEach(element => {
+                   content+=`
+                   <div class="card teal lighten-1"><div class="card-content white-text"> <span class="card-title">${target.userInfo.myOrders[element].title}</span>
+                   <p>${target.userInfo.myOrders[element].description}</p>
+                   <div class="card-action">
+                    <a href="#">Редактировать</a>
+                    <a href="#">Удалить</a>
+                  </div>
+                   </div></div>` 
+                  });
+                  navContentElement.innerHTML = content
                 progressElement.hidden = true
               })
 
