@@ -19,6 +19,7 @@
   <div class="content">
   </div>
   <script>
+
     const webAppUrl = 'https://script.google.com/macros/s/AKfycbzUBk-BXFbVzsQ1ZNzHXIDKHxyPfAzZirdMmtSksbtdCXG3B-1pMRtsS9RBApHSwNPgFQ/exec'
     var tg = window.Telegram.WebApp;
     const navBar = ` <nav class="nav-extended">
@@ -67,36 +68,79 @@
             progressElement.hidden = false
             navContentElement.innerHTML = ''
             if (value == 'getMyInfo') {
-              navContentElement.innerHTML = JSON.stringify(target.userInfo.user)
+              let content=`<div class="card">
+    <div class="card-image waves-effect waves-block waves-light">
+      <img class="activator" width="100px" src="https://plus.unsplash.com/premium_photo-1680020185326-45491267f8da?q=80&w=2187&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
+    </div>
+    <div class="card-content">
+      <span class="card-title activator grey-text text-darken-4">${user.userInfo.user.name}<i class="material-icons right">more_vert</i></span>
+      <p><a href="#">Редактировать</a></p>
+    </div>
+    <div class="card-reveal">
+      <span class="card-title grey-text text-darken-4">${user.userInfo.user.name}<i class="material-icons right">close</i></span>
+      <p>Имя: ${user.userInfo.user.name}</p>
+      <p>Контактные данные: ${user.userInfo.user.contacts}</p>
+      <p>Локализация: ${user.userInfo.user.location}</p>
+    </div>
+  </div>`
+              navContentElement.innerHTML = content
               progressElement.hidden = true
             }
             if (value == 'getMyOrders') {
               getApi('getOrders', user.id).then(data => {
                 navContentElement.innerHTML = JSON.stringify(target.userInfo.myOrders)
-                let content=' <a class="btn-floating waves-effect waves-light red"><i class="material-icons">add</i></a>'
-                  Object.keys(target.userInfo.myOrders).forEach(element => {
-                   content+=`
+                let content = '<a class="btn-floating waves-effect waves-light red" ><i class="material-icons" onclick="plusOrder()">add</i></a>'
+                Object.keys(target.userInfo.myOrders).forEach(element => {
+                  content += `
                    <div class="card teal lighten-1"><div class="card-content white-text"> <span class="card-title">${target.userInfo.myOrders[element].title}</span>
                    <p>${target.userInfo.myOrders[element].description}</p>
+                   <a href="#"><span class="new badge" data-badge-caption="отзыва(ов)">${target.userInfo.myOrders[element].responds}</span></a>
+                   <span class="badge">${target.userInfo.myOrders[element].views} просмотра(ов)</span>
+                   <div class=""></div>
                    <div class="card-action">
-                    <a href="#">Редактировать</a>
+                    <a href="#" onclick="">Редактировать</a>
                     <a href="#">Удалить</a>
                   </div>
-                   </div></div>` 
-                  });
-                  navContentElement.innerHTML = content
+                   </div></div>`
+                });
+                content += `<div id="modal1" class="modal">
+    <div class="modal-content">
+      <h4>Создать новый заказ</h4>
+      <input placeholder="Что требуется сделать?" id="title" type="text" class="validate">
+      <textarea placeholder="Введите полное описание проблемы" id="description" style="height:150px;"></textarea>
+      <input type="file" placeholder="Добавьте файл">
+     
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">Создать</a>
+    </div>
+  </div>`
+                navContentElement.innerHTML = content
                 progressElement.hidden = true
               })
 
             }
             if (value == 'getAllOrders') {
               getApi('getOrders', user.id).then(data => {
-                navContentElement.innerHTML = JSON.stringify(target.userInfo.allOrders)
+                let content = ''
+                Object.keys(target.userInfo.allOrders).forEach(element => {
+                  content += `
+                   <div class="card teal lighten-1"><div class="card-content white-text"> <span class="card-title">${target.userInfo.myOrders[element].title}</span>
+                   <p>${target.userInfo.myOrders[element].description}</p>
+                   <a href="#"><span class="new badge" data-badge-caption="отзыва(ов)">${target.userInfo.myOrders[element].responds}</span></a>
+                   <span class="badge">${target.userInfo.myOrders[element].views} просмотра(ов)</span>
+                   <div class=""></div>
+                   <div class="card-action">
+                    <a href="#" onclick="">Написать отзыв</a>
+                  </div>
+                   </div></div>`
+                });
+                navContentElement.innerHTML = content
                 progressElement.hidden = true
               })
 
             }
-            target.lastPage=value
+            target.lastPage = value
           }
         }
         target[prop] = value
@@ -114,9 +158,19 @@
       })
     }
     function load(type) {
+
       user.curPage = type
     }
-
+    function plusOrder() {
+      var elems = document.querySelectorAll('.modal');
+      M.Modal.init(elems);
+      var singleModalElem = document.querySelector('#modal1');
+      var instance = M.Modal.getInstance(singleModalElem);
+      instance.open()
+    }
+    function editOrder(number){
+      console.log(user.myOrders[number])
+    }
   </script>
 </body>
 
