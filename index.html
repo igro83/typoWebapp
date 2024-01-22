@@ -89,7 +89,7 @@
             if (value == 'getMyOrders') {
               getApi('getOrders', user.id).then(data => {
                 navContentElement.innerHTML = JSON.stringify(target.userInfo.myOrders)
-                let content = '<a class="btn-floating waves-effect waves-light red" ><i class="material-icons" onclick="plusOrder()">add</i></a>'
+                let content = `<a class="btn-floating waves-effect waves-light red" ><i class="material-icons" onclick="showModal('modal1')">add</i></a>`
                 Object.keys(target.userInfo.myOrders).forEach(element => {
                   content += `
                    <div class="card teal lighten-1"><div class="card-content white-text"> <span class="card-title">${target.userInfo.myOrders[element].title}</span>
@@ -98,7 +98,7 @@
                    <span class="badge">${target.userInfo.myOrders[element].views} просмотра(ов)</span>
                    <div class=""></div>
                    <div class="card-action">
-                    <a href="#" onclick="">Редактировать</a>
+                    <a href="#" onclick="editOrder(${element})">Редактировать</a>
                     <a href="#">Удалить</a>
                   </div>
                    </div></div>`
@@ -112,9 +112,11 @@
      
     </div>
     <div class="modal-footer">
-      <a href="#!" class="modal-close waves-effect waves-green btn-flat">Создать</a>
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat" >Создать</a>
     </div>
-  </div>`
+  </div>
+  <div id="modalEdit" class="modal"></div>
+  `
                 navContentElement.innerHTML = content
                 progressElement.hidden = true
               })
@@ -125,15 +127,17 @@
                 let content = ''
                 Object.keys(target.userInfo.allOrders).forEach(element => {
                   content += `
-                   <div class="card teal lighten-1"><div class="card-content white-text"> <span class="card-title">${target.userInfo.myOrders[element].title}</span>
-                   <p>${target.userInfo.myOrders[element].description}</p>
+                   <div class="card teal lighten-1"><div class="card-content white-text"> <span class="card-title">${target.userInfo.allOrders[element].title}</span>
+                   <p>${target.userInfo.allOrders[element].description}</p>
                    <a href="#"><span class="new badge" data-badge-caption="отзыва(ов)">${target.userInfo.myOrders[element].responds}</span></a>
-                   <span class="badge">${target.userInfo.myOrders[element].views} просмотра(ов)</span>
+                   <span class="badge">${target.userInfo.allOrders[element].views} просмотра(ов)</span>
                    <div class=""></div>
                    <div class="card-action">
-                    <a href="#" onclick="">Написать отзыв</a>
+                    <a href="#" onclick="writeTo(${element})">Написать отзыв</a>
                   </div>
-                   </div></div>`
+                   </div></div>
+                   `
+                   content+=`<div id="modalAnswer" class="modal"></div>`
                 });
                 navContentElement.innerHTML = content
                 progressElement.hidden = true
@@ -161,15 +165,48 @@
 
       user.curPage = type
     }
-    function plusOrder() {
+    function showModal(modal) {
       var elems = document.querySelectorAll('.modal');
       M.Modal.init(elems);
-      var singleModalElem = document.querySelector('#modal1');
+      var singleModalElem = document.getElementById(modal);
       var instance = M.Modal.getInstance(singleModalElem);
       instance.open()
     }
     function editOrder(number){
-      console.log(user.myOrders[number])
+      const order=user.userInfo.myOrders[number]
+      const divEdit=`
+    <div class="modal-content">
+      <h4>Редактировать заказ</h4>
+      <input placeholder="Что требуется сделать?" id="title" type="text" class="validate" value="${order.title}">
+      <textarea placeholder="Введите полное описание проблемы" id="description" style="height:150px;">${order.description}</textarea>
+      <input type="file" placeholder="Добавьте файл">
+     
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat" onClick="updateOrder(${number})">Сохранить</a>
+    </div>
+  `
+  document.querySelector("#modalEdit").innerHTML=divEdit
+    showModal('modalEdit')
+    }
+    function updateOrder(number){
+      //user.userInfo.myOrders[number]={}
+
+    }
+    function writeTo(number){
+      const order=user.userInfo.allOrders[number]
+      const divEdit=`
+    <div class="modal-content">
+      <h4>Написать отзыв</h4>
+      <input disabled placeholder="Что требуется сделать?" id="title" type="text" class="validate" value="${order.title}" >
+      <textarea disabled placeholder="Введите полное описание проблемы" id="description" style="height:150px;">${order.description}</textarea>
+      <textarea placeholder="Введите текст отклика" id="d" style="height:150px;"></textarea>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat" onClick="updateOrder(${number})">Отправить</a>
+    </div>`
+    document.querySelector("#modalAnswer").innerHTML=divEdit
+    showModal('modalAnswer')
     }
   </script>
 </body>
